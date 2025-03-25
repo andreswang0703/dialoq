@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Basic WebSocket Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        #messages {
+            margin: 20px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h2>WebSocket Echo Test</h2>
+    <div id="messages"></div>
+    <input type="text" id="messageInput" placeholder="Type a message...">
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        const ws = new WebSocket('ws://localhost:8081/ws');
+        const messages = document.getElementById('messages');
+        const messageInput = document.getElementById('messageInput');
+
+        ws.onopen = () => {
+            appendMessage('Connected to WebSocket server');
+        };
+
+        ws.onmessage = (event) => {
+            appendMessage('Received: ' + event.data);
+        };
+
+        ws.onclose = () => {
+            appendMessage('Disconnected from server');
+        };
+
+        function sendMessage() {
+            if (messageInput.value) {
+                ws.send(messageInput.value);
+                appendMessage('Sent: ' + messageInput.value);
+                messageInput.value = '';
+            }
+        }
+
+        function appendMessage(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        // Handle Enter key
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html> 
