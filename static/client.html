@@ -17,7 +17,7 @@
     </style>
 </head>
 <body>
-    <h2>WebSocket Echo Test</h2>
+    <h2>Basic WebSocket Test</h2>
     <div id="messages"></div>
     <input type="text" id="messageInput" placeholder="Type a message...">
     <button onclick="sendMessage()">Send</button>
@@ -31,8 +31,23 @@
             appendMessage('Connected to WebSocket server');
         };
 
+        // Handle messages from the server
         ws.onmessage = (event) => {
-            appendMessage('Received: ' + event.data);
+            try {
+                const data = JSON.parse(event.data);
+
+                if (Array.isArray(data.messages)) {
+                    console.log("array....")
+                    const allMessages = data.messages;
+                    renderAllMessages(allMessages);
+                } else {
+                    // This might be a singleMessage
+                    console.log("single message....")
+                    appendMessage(data);
+                }
+            } catch (e) {
+            console.log("Error parsing message:", e);
+            }
         };
 
         ws.onclose = () => {
@@ -45,6 +60,17 @@
                 appendMessage('Sent: ' + messageInput.value);
                 messageInput.value = '';
             }
+        }
+
+        function renderAllMessages(messages) {
+            // Clear the chat container and re-render everything
+            const chatDiv = document.getElementById("messages");
+            chatDiv.innerHTML = "";
+            messages.forEach((msg) => {
+                const p = document.createElement("p");
+                p.textContent = msg.username + ": " + msg.m;
+                chatDiv.appendChild(p);
+            });
         }
 
         function appendMessage(text) {
